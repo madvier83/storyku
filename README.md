@@ -1,3 +1,43 @@
+# StoryKu
+
+## <a name="introduction"></a> Introduction :
+Project Submission - BIGIO Fullstack Dev - Take Home Challenge
+
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Features](#features)
+- [Libraries](#libraries)
+- [Project Structure](#project-structures)
+- [APK Link](#apk-link)
+
+## <a name="features"></a> Features :
+- Story List & Filter
+- CRUD Story
+- CRUD Chapter
+
+## <a name="libraries"></a> Libraries :
+- Backend    : NextJS, Mongodb
+- Frontend   : ReactJS, Nextjs, TailwindCSS, DaisyUI
+- Language   : Javascript
+- Hosting    : Vercel
+
+## <a name="project-structures"></a> Project Structure :
+* `components`
+* `layouts`
+* `app`
+
+## <a name="apk-link"></a> Website URL :
+https://storykuu.vercel.app/
+
+
+
+
+
+
+
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
