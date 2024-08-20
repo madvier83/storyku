@@ -12,23 +12,45 @@ export default function Home() {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchStories = async () => {
-      try {
-        const response = await fetch("/api/stories");
-        if (response.ok) {
-          const data = await response.json();
-          setStories(data);
-        } else {
-          console.error("Failed to fetch stories");
-        }
-      } catch (error) {
-        console.error("An unexpected error occurred:", error);
-      } finally {
-        setLoading(false);
+  const fetchStories = async () => {
+    try {
+      const response = await fetch("/api/stories");
+      if (response.ok) {
+        const data = await response.json();
+        setStories(data);
+      } else {
+        console.error("Failed to fetch stories");
       }
-    };
+    } catch (error) {
+      console.error("An unexpected error occurred:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  async function deleteStory(id) {
+    try {
+      const response = await fetch(`/api/stories?id=${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        throw new Error(`Error: ${response.status} - ${errorData.error}`);
+      }
+
+      const result = await response.json();
+      fetchStories();
+    } catch (error) {
+      console.error("Failed to delete story:", error.message);
+    }
+  }
+
+  useEffect(() => {
     fetchStories();
   }, []);
 
@@ -36,7 +58,7 @@ export default function Home() {
     <DashboardLayout>
       <div className="p-8 max-w-7xl">
         <h1>Stories</h1>
-        <div className="flex justify-between items-center mt-8">
+        <div className="flex flex-wrap gap-4 justify-between items-center mt-8">
           <label className="input bg-gray-100 flex w-full max-w-xs items-center gap-2">
             <MdOutlineSearch className="text-2xl" />
             <input
@@ -104,7 +126,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="overflow-x-auto mt-8">
+        <div className="mt-8">
           <table className="table w-full">
             <thead>
               <tr className="text-black font-semibold">
@@ -152,8 +174,39 @@ export default function Home() {
                       )}
                     </td>
                     <td>
-                      <div className="">
-                        <MdMoreHoriz className="text-2xl text-black" />
+                      <div className="dropdown dropdown-left">
+                        <div tabIndex={0}>
+                          <MdMoreHoriz className="text-2xl text-black" />
+                        </div>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+                        >
+                          <li>
+                            <div
+                              className="text-emerald-500"
+                              onClick={() => {
+                                router.push(`/`);
+                              }}
+                            >
+                              Update
+                            </div>
+                          </li>
+                          <li>
+                            <div
+                              className="text-rose-500"
+                              onClick={() => {
+                                if (
+                                  confirm("Delete this chapter permanently?")
+                                ) {
+                                  deleteStory(story._id);
+                                }
+                              }}
+                            >
+                              Delete
+                            </div>
+                          </li>
+                        </ul>
                       </div>
                     </td>
                   </tr>

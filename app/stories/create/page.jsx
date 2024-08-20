@@ -330,39 +330,37 @@ export default function Page() {
                         {moment(chapter.lastUpdated).format("DD MMMM YYYY")}
                       </td>
                       <td>
-                        <div>
-                          <div className="dropdown">
-                            <div tabIndex={0}>
-                              <MdMoreHoriz className="text-2xl text-black" />
-                            </div>
-                            <ul
-                              tabIndex={0}
-                              className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
-                            >
-                              <li>
-                                <div
-                                  className="text-emerald-500"
-                                  onClick={() => {
-                                    router.push(
-                                      `/stories/create/update-chapter/${chapter.id}`
-                                    );
-                                  }}
-                                >
-                                  Update
-                                </div>
-                              </li>
-                              <li>
-                                <div
-                                  className="text-rose-500"
-                                  onClick={() => {
-                                    deleteChapter(chapter.id);
-                                  }}
-                                >
-                                  Delete
-                                </div>
-                              </li>
-                            </ul>
+                        <div className="dropdown">
+                          <div tabIndex={0}>
+                            <MdMoreHoriz className="text-2xl text-black" />
                           </div>
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+                          >
+                            <li>
+                              <div
+                                className="text-emerald-500"
+                                onClick={() => {
+                                  router.push(
+                                    `/stories/create/update-chapter/${chapter.id}`
+                                  );
+                                }}
+                              >
+                                Update
+                              </div>
+                            </li>
+                            <li>
+                              <div
+                                className="text-rose-500"
+                                onClick={() => {
+                                  deleteChapter(chapter.id);
+                                }}
+                              >
+                                Delete
+                              </div>
+                            </li>
+                          </ul>
                         </div>
                       </td>
                     </tr>

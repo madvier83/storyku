@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { MdBook, MdDashboard, MdOutlineStackedBarChart } from "react-icons/md";
+import { IoMdMenu } from "react-icons/io";
 
 const DashboardLayout = ({ children }) => {
   return (
@@ -9,13 +10,13 @@ const DashboardLayout = ({ children }) => {
         <div className="drawer lg:drawer-open">
           <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
           <div className="drawer-content flex flex-col">
-            <div className="p-8">{children}</div>
             <label
               htmlFor="my-drawer-2"
-              className="btn btn-primary drawer-button lg:hidden"
+              className="btn btn-primary drawer-button lg:hidden w-min mt-8 ml-8"
             >
-              Open drawer
+              <IoMdMenu className="text-2xl" />
             </label>
+            <div className="lg:p-8 min-h-screen">{children}</div>
           </div>
           <div className="drawer-side">
             <label
