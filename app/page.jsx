@@ -125,8 +125,21 @@ export default function Home() {
                     <td>{index + 1}</td>
                     <td>{story.title}</td>
                     <td>{story.writerName}</td>
-                    <td>{story.category}</td>
-                    <td>{story.tags}</td>
+                    <td className="capitalize">{story.category}</td>
+                    <td>
+                      <div className="flex gap-2">
+                        {story.tags?.map((tag, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className="bg-slate-100 p-3 capitalize rounded-full text-center text-slate-500 w-min px-4"
+                            >
+                              {tag.label}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </td>
                     <td>
                       {story.status == "publish" ? (
                         <div className="bg-emerald-100 p-3 capitalize rounded-full text-center text-emerald-500 w-min px-8">

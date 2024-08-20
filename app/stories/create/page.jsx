@@ -3,10 +3,66 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import { IoMdAdd, IoMdArrowBack } from "react-icons/io";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { MdMoreHoriz } from "react-icons/md";
 import useFormPersist from "react-hook-form-persist";
 import moment from "moment";
+import Select from "react-select";
+
+const tagOptions = [
+  { value: "fantasy", label: "Fantasy" },
+  { value: "fiction", label: "Fiction" },
+  { value: "romance", label: "Romance" },
+  { value: "music", label: "Music" },
+  { value: "school", label: "School" },
+  { value: "science", label: "Science" },
+  { value: "technology", label: "Technology" },
+  { value: "mathematics", label: "Mathematics" },
+  { value: "engineering", label: "Engineering" },
+];
+
+const customStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    background: "#fff",
+    borderColor: "#D3D4D7",
+    minHeight: "45px",
+    borderRadius: "8px",
+    boxShadow: state.isFocused ? null : null,
+  }),
+
+  valueContainer: (provided, state) => ({
+    ...provided,
+    height: "45px",
+    padding: "0 6px",
+    borderRadius: "8px",
+  }),
+  input: (provided, state) => ({
+    ...provided,
+    margin: "0px",
+  }),
+  indicatorSeparator: (state) => ({
+    display: "none",
+  }),
+  indicatorsContainer: (provided, state) => ({
+    ...provided,
+    height: "45px",
+    opacity: ".5",
+  }),
+  multiValue: (styles, { data }) => {
+    return {
+      ...styles,
+      backgroundColor: "#F57C2B",
+      borderRadius: "27px",
+      padding: "4px 8px",
+      color: "#fff",
+    };
+  },
+  multiValueLabel: (styles, { data }) => ({
+    ...styles,
+    color: "#fff",
+  }),
+};
 
 export default function Page() {
   const router = useRouter();
@@ -14,6 +70,7 @@ export default function Page() {
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(false);
   const {
+    control,
     register,
     handleSubmit,
     watch,
@@ -38,6 +95,7 @@ export default function Page() {
 
       if (response.ok) {
         localStorage.removeItem("story-form");
+        sessionStorage.removeItem("story-form");
         localStorage.removeItem("chapters");
         reset();
         router.push("/");
@@ -67,6 +125,8 @@ export default function Page() {
       )
     ) {
       reset();
+      localStorage.removeItem("story-form");
+      sessionStorage.removeItem("story-form");
       router.push("/");
     }
   };
@@ -155,14 +215,26 @@ export default function Page() {
                 <div className="label">
                   <span className="label-text">Category</span>
                 </div>
-                <input
-                  type="text"
-                  placeholder="Category"
-                  className="input input-bordered w-full mt-4"
+                <select
+                  className="select select-bordered w-full mt-4 text-[16px]"
                   {...register("category", {
                     required: "Category is required",
                   })}
-                />
+                >
+                  <option
+                    value={"uncategorized"}
+                    defaultValue={"uncategorized"}
+                  >
+                    Uncategorized
+                  </option>
+                  {tagOptions.map((tag, index) => {
+                    return (
+                      <option key={index} value={tag.value}>
+                        {tag.label}
+                      </option>
+                    );
+                  })}
+                </select>
                 {errors.category && (
                   <p className="text-red-500 mt-2">{errors.category.message}</p>
                 )}
@@ -171,11 +243,24 @@ export default function Page() {
                 <div className="label">
                   <span className="label-text">Tags/Keywords Story</span>
                 </div>
-                <input
-                  type="text"
-                  placeholder="Tags/Keywords Story"
-                  className="input input-bordered w-full mt-4"
-                  {...register("tags", { required: "Tags are required" })}
+                <div className="mt-4"></div>
+                <Controller
+                  name="tags"
+                  control={control}
+                  defaultValue={[]}
+                  render={({ field }) => (
+                    <Select
+                      isMulti
+                      options={tagOptions}
+                      className=""
+                      classNamePrefix="select"
+                      {...field}
+                      onChange={(selected) => field.onChange(selected)}
+                      value={field.value}
+                      styles={customStyles}
+                    />
+                  )}
+                  rules={{ required: "Tags are required" }}
                 />
                 {errors.tags && (
                   <p className="text-red-500 mt-2">{errors.tags.message}</p>
