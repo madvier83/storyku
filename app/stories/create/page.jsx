@@ -1,22 +1,33 @@
 "use client";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { IoMdArrowBack } from "react-icons/io";
-import React, { useState } from "react";
+import { IoMdAdd, IoMdArrowBack } from "react-icons/io";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { MdMoreHoriz } from "react-icons/md";
+import useFormPersist from "react-hook-form-persist";
+import moment from "moment";
 
 export default function Page() {
   const router = useRouter();
+
+  const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
+    reset,
     formState: { errors },
   } = useForm();
+
+  useFormPersist("story-form", { watch, setValue });
 
   const onSubmit = async (data) => {
     setLoading(true);
     try {
+      data.chapters = chapters;
       const response = await fetch("/api/stories", {
         method: "POST",
         headers: {
@@ -26,10 +37,11 @@ export default function Page() {
       });
 
       if (response.ok) {
-        // Redirect or show success message
+        localStorage.removeItem("story-form");
+        localStorage.removeItem("chapters");
+        reset();
         router.push("/");
       } else {
-        // Handle error
         console.error("Failed to submit form");
         setLoading(false);
       }
@@ -39,6 +51,30 @@ export default function Page() {
       setLoading(false);
     }
   };
+
+  const deleteChapter = (id) => {
+    if (confirm("Delete this chapter permanently?")) {
+      let chapterUpdate = chapters.filter((ch) => ch.id != id);
+      localStorage.setItem("chapters", JSON.stringify(chapterUpdate));
+      setChapters(chapterUpdate);
+    }
+  };
+
+  const cancelCreate = () => {
+    if (
+      confirm(
+        "Are you sure you want to cancel adding the story without saving the data?"
+      )
+    ) {
+      reset();
+      router.push("/");
+    }
+  };
+
+  useEffect(() => {
+    const storedChapters = JSON.parse(localStorage.getItem("chapters")) || [];
+    setChapters(storedChapters);
+  }, []);
 
   return (
     <DashboardLayout>
@@ -167,55 +203,31 @@ export default function Page() {
                 <div className="label">
                   <span className="label-text">Status</span>
                 </div>
-                <input
-                  type="text"
-                  placeholder="Status"
-                  className="input input-bordered w-full mt-4"
+                <select
+                  className="select select-bordered w-full mt-4 text-[16px]"
                   {...register("status", { required: "Status is required" })}
-                />
+                >
+                  <option value={"publish"} defaultValue={"publish"}>
+                    Publish
+                  </option>
+                  <option value={"draft"}>Draft</option>
+                </select>
                 {errors.status && (
                   <p className="text-red-500 mt-2">{errors.status.message}</p>
                 )}
               </label>
             </div>
 
-            <div className="flex justify-end mt-4">
-              <div className="">
-                <button
-                  onClick={() => router.back()}
-                  className="py-3 px-6 font-semibold border h-14 mr-2 border-gray-200 rounded-full"
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary rounded-full px-8 text-lg mt-4 max-w-52 ml-auto"
-                  disabled={loading} // Disable button while loading
-                >
-                  {loading ? "Saving..." : "Save"} {/* Show loading text */}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-    </DashboardLayout>
-  );
-}
-
-{
-  /* <div
+            <div
               onClick={() => router.push("/stories/create/add-chapter")}
               className="btn btn-primary rounded-full px-8 text-lg mt-8 max-w-52 ml-auto"
             >
               <IoMdAdd className="text-2xl" />
               Add Chapter
-            </div> */
-}
+            </div>
+          </div>
 
-{
-  /* <div className="overflow-x-auto mt-8">
+          <div className="mt-8">
             <table className="table w-full">
               <thead>
                 <tr>
@@ -225,32 +237,81 @@ export default function Page() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Cy Ganderton</td>
-                  <td>Quality Control Specialist</td>
-                  <td>
-                    <div className="">
-                      <MdMoreHoriz className="text-2xl text-black" />
-                    </div>
-                  </td>
-                </tr>
+                {chapters.length > 0 ? (
+                  chapters.map((chapter, index) => (
+                    <tr key={index}>
+                      <td>{chapter.title}</td>
+                      <td>
+                        {moment(chapter.lastUpdated).format("DD MMMM YYYY")}
+                      </td>
+                      <td>
+                        <div>
+                          <div className="dropdown">
+                            <div tabIndex={0}>
+                              <MdMoreHoriz className="text-2xl text-black" />
+                            </div>
+                            <ul
+                              tabIndex={0}
+                              className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+                            >
+                              <li>
+                                <div
+                                  className="text-emerald-500"
+                                  onClick={() => {
+                                    router.push(
+                                      `/stories/create/update-chapter/${chapter.id}`
+                                    );
+                                  }}
+                                >
+                                  Update
+                                </div>
+                              </li>
+                              <li>
+                                <div
+                                  className="text-rose-500"
+                                  onClick={() => {
+                                    deleteChapter(chapter.id);
+                                  }}
+                                >
+                                  Delete
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="text-center">
+                      No chapters found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
-          <div className="flex justify-end mt-4">
-            <div className="">
-              <button
-                onClick={() => router.back()}
-                className="py-3 px-6 font-semibold border h-14 mr-2 border-gray-200 rounded-full"
+          <div className="flex justify-end mt-4 max-w-7xl">
+            <div className="flex items-center">
+              <div
+                onClick={() => cancelCreate()}
+                className="mt-4 py-3.5 px-6 font-semibold border h-14 mr-2 border-gray-200 rounded-full cursor-pointer"
+                disabled={loading}
               >
                 Cancel
-              </button>
+              </div>
               <button
                 type="submit"
                 className="btn btn-primary rounded-full px-8 text-lg mt-4 max-w-52 ml-auto"
+                disabled={loading} // Disable button while loading
               >
-                Save
+                {loading ? "Saving..." : "Save"} {/* Show loading text */}
               </button>
             </div>
-          </div> */
+          </div>
+        </form>
+      </div>
+    </DashboardLayout>
+  );
 }

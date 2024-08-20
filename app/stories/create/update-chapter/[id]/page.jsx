@@ -4,29 +4,53 @@ import { IoMdArrowBack } from "react-icons/io";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import QuillEditor from "@/components/QuillEditor";
 
-export default function Page() {
+export default function Page({ params }) {
   const router = useRouter();
+  const { id } = params;
   const { register, handleSubmit, setValue } = useForm();
   const [initialDate, setInitialDate] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentDate = new Date().toISOString().split("T")[0];
-    setInitialDate(currentDate);
-    setValue("lastUpdated", currentDate);
-  }, [setValue]);
+    // Fetch chapter data from local storage based on ID
+    const fetchChapter = () => {
+      const existingChapters =
+        JSON.parse(localStorage.getItem("chapters")) || [];
+      const chapter = existingChapters.find((ch) => ch.id == id);
+      if (chapter) {
+        setValue("title", chapter.title || "");
+        setValue("story", chapter.story || "");
+        setValue("lastUpdated", chapter.lastUpdated || "");
+        setInitialDate(
+          chapter.lastUpdated || new Date().toISOString().split("T")[0]
+        );
+      } else {
+        console.error("Chapter not found");
+      }
+
+      setLoading(false);
+    };
+
+    fetchChapter();
+  }, [id, setValue]);
 
   const onSubmit = (data) => {
     const chapter = {
-      id: Date.now(),
+      id,
       title: data.title,
       story: data.story,
       lastUpdated: data.lastUpdated,
     };
 
+    // Update chapter logic
     const existingChapters = JSON.parse(localStorage.getItem("chapters")) || [];
-    existingChapters.push(chapter);
-    localStorage.setItem("chapters", JSON.stringify(existingChapters));
+    const updatedChapters = existingChapters.map((ch) =>
+      ch.id == id ? chapter : ch
+    );
+    localStorage.setItem("chapters", JSON.stringify(updatedChapters));
+
     router.push("/stories/create");
   };
 
@@ -42,11 +66,11 @@ export default function Page() {
               <div className="text-gray-400">Add Stories</div>
             </li>
             <li>
-              <div className="text-blue-500">Add Chapter</div>
+              <div className="text-blue-500">Update Chapter</div>
             </li>
           </ul>
         </div>
-        <h1>Add Chapter</h1>
+        <h1>Update Chapter</h1>
         <div
           onClick={() => router.back()}
           className="btn btn-sm rounded-full mt-4"

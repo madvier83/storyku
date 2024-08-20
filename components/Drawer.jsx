@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 const Drawer = ({ children }) => {
@@ -23,13 +24,13 @@ const Drawer = ({ children }) => {
           <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-8">
             {/* Sidebar content here */}
             <li>
-              <h1 className="">STORYKU</h1>
+              <h1 className="font-extrabold mt-6">STORYKU</h1>
+            </li>
+            <li className="drawer-list mt-4">
+              <Link href={"/"}>Dashboard</Link>
             </li>
             <li className="drawer-list">
-              <a>Dashboard</a>
-            </li>
-            <li className="drawer-list">
-              <a>Story Management</a>
+              <Link href={"/"}>Story Management</Link>
             </li>
           </ul>
         </div>

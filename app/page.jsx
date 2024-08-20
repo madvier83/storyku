@@ -127,7 +127,17 @@ export default function Home() {
                     <td>{story.writerName}</td>
                     <td>{story.category}</td>
                     <td>{story.tags}</td>
-                    <td>{story.status}</td>
+                    <td>
+                      {story.status == "publish" ? (
+                        <div className="bg-emerald-100 p-3 capitalize rounded-full text-center text-emerald-500 w-min px-8">
+                          {story.status}
+                        </div>
+                      ) : (
+                        <div className="bg-amber-100 p-3 capitalize rounded-full text-center text-amber-500 w-min px-8">
+                          {story.status}
+                        </div>
+                      )}
+                    </td>
                     <td>
                       <div className="">
                         <MdMoreHoriz className="text-2xl text-black" />
