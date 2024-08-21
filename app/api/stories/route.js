@@ -27,12 +27,27 @@ async function connectToDatabase() {
   return { client, db };
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+
     const { db } = await connectToDatabase();
     const storiesCollection = db.collection("stories");
 
-    const stories = await storiesCollection.find({}).toArray();
+    let stories;
+    if (id) {
+      // Safely create an ObjectId from the string
+      stories = await storiesCollection.findOne({ _id: new ObjectId(id) });
+
+      if (!stories) {
+        return new Response(JSON.stringify({ error: "Story not found" }), {
+          status: 404,
+        });
+      }
+    } else {
+      stories = await storiesCollection.find({}).toArray();
+    }
 
     return new Response(JSON.stringify(stories), { status: 200 });
   } catch (error) {
@@ -56,6 +71,43 @@ export async function POST(request) {
   } catch (error) {
     console.error("Error inserting story:", error);
     return new Response(JSON.stringify({ error: "Failed to insert story" }), {
+      status: 500,
+    });
+  }
+}
+
+export async function PUT(request) {
+  try {
+    const body = await request.json();
+    const id = body._id;
+
+    const objectId = new ObjectId(id);
+
+    console.log("Updating story with ID:", objectId);
+
+    const { db } = await connectToDatabase();
+    const storiesCollection = db.collection("stories");
+
+    const { _id, ...updateFields } = body;
+
+    const result = await storiesCollection.updateOne(
+      { _id: objectId },
+      { $set: updateFields }
+    );
+
+    if (result.matchedCount === 0) {
+      return new Response(JSON.stringify({ error: "Story not found" }), {
+        status: 404,
+      });
+    }
+
+    return new Response(
+      JSON.stringify({ message: "Story updated successfully" }),
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating story:", error);
+    return new Response(JSON.stringify({ error: "Failed to update story" }), {
       status: 500,
     });
   }

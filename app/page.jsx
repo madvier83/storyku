@@ -52,6 +52,8 @@ export default function Home() {
 
   useEffect(() => {
     fetchStories();
+    localStorage.removeItem("chapters");
+    sessionStorage.removeItem("story-form");
   }, []);
 
   return (
@@ -184,9 +186,19 @@ export default function Home() {
                         >
                           <li>
                             <div
+                              className="text-blue-500"
+                              onClick={() => {
+                                router.push(`/stories/detail/${story._id}`);
+                              }}
+                            >
+                              Detail
+                            </div>
+                          </li>
+                          <li>
+                            <div
                               className="text-emerald-500"
                               onClick={() => {
-                                router.push(`/`);
+                                router.push(`/stories/update/${story._id}`);
                               }}
                             >
                               Update

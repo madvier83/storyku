@@ -151,7 +151,7 @@ export default function Page() {
         </div>
         <h1>Add Stories</h1>
         <div
-          onClick={() => router.back()}
+          onClick={() => router.push("/")}
           className="btn btn-sm rounded-full mt-4"
         >
           <IoMdArrowBack />
