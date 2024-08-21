@@ -32,8 +32,29 @@ export async function GET(request) {
     const url = new URL(request.url);
     const id = url.searchParams.get("id");
 
+    const category = url.searchParams.get("category");
+    const status = url.searchParams.get("status");
+    const search = url.searchParams.get("search");
+
     const { db } = await connectToDatabase();
     const storiesCollection = db.collection("stories");
+
+    let query = {};
+
+    if (category && category !== "all") {
+      query.category = category;
+    }
+
+    if (status && status !== "all") {
+      query.status = status;
+    }
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { writerName: { $regex: search, $options: "i" } },
+      ];
+    }
 
     let stories;
     if (id) {
@@ -46,7 +67,7 @@ export async function GET(request) {
         });
       }
     } else {
-      stories = await storiesCollection.find({}).toArray();
+      stories = await storiesCollection.find(query).toArray();
     }
 
     return new Response(JSON.stringify(stories), { status: 200 });

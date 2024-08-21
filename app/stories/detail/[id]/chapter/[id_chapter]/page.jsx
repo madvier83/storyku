@@ -43,14 +43,14 @@ export default function Page({ params }) {
               <div className="text-gray-400">Stories Management</div>
             </li>
             <li>
-              <div className="text-gray-400">Add Stories</div>
+              <div className="text-gray-400">Story Detail</div>
             </li>
             <li>
-              <div className="text-blue-500">Update Chapter</div>
+              <div className="text-blue-500">Chapter Detail</div>
             </li>
           </ul>
         </div>
-        <h1>Update Chapter</h1>
+        <h1>Chapter Detail</h1>
         <div
           onClick={() => router.back()}
           className="btn btn-sm rounded-full mt-4"

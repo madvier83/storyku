@@ -4,13 +4,62 @@ import { MdMoreHoriz, MdOutlineFilterAlt } from "react-icons/md";
 import { MdOutlineSearch } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import { IoMdAdd } from "react-icons/io";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import tagOptions from "@/constants/tagOptions";
 
 export default function Home() {
   const router = useRouter();
-
+  const detailsRef = useRef(null);
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const closeDetails = () => {
+    if (detailsRef.current) {
+      detailsRef.current.removeAttribute("open");
+    }
+  };
+
+  const onSubmit = async (data) => {
+    closeDetails();
+    setLoading(true);
+    setSearch("");
+    try {
+      const queryParams = new URLSearchParams(data).toString();
+      const response = await fetch(`/api/stories?${queryParams}`);
+      const stories = await response.json();
+      setStories(stories);
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch filtered stories", error);
+      setLoading(false);
+    }
+  };
+
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `/api/stories?search=${encodeURIComponent(search)}`
+      );
+      const stories = await response.json();
+      setStories(stories);
+    } catch (error) {
+      console.error("Failed to fetch search results", error);
+    }
+  };
 
   const fetchStories = async () => {
     try {
@@ -61,17 +110,25 @@ export default function Home() {
       <div className="p-8 max-w-7xl">
         <h1>Stories</h1>
         <div className="flex flex-wrap gap-4 justify-between items-center mt-8">
-          <label className="input bg-gray-100 flex w-full max-w-xs items-center gap-2">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="input bg-gray-100 flex w-full max-w-xs items-center gap-2"
+          >
             <MdOutlineSearch className="text-2xl" />
             <input
               type="text"
               className="grow"
               placeholder="Search by Writers/Title"
+              value={search}
+              onChange={handleSearchChange}
             />
-          </label>
+            <button type="submit" className="hidden">
+              Search
+            </button>
+          </form>
 
           <div className="flex items-center">
-            <details className="dropdown dropdown-end">
+            <details ref={detailsRef} className="dropdown dropdown-end">
               <summary className="btn bg-white border shadow w-14 h-14 p-0 rounded-full">
                 <MdOutlineFilterAlt className="text-3xl text-black" />
               </summary>
@@ -79,45 +136,67 @@ export default function Home() {
                 <div className="flex justify-between">
                   <h2 className="text-xl font-bold">Filter</h2>
                 </div>
-                <label className="form-control w-full mt-4">
-                  <div className="label">
-                    <span className="label-text">Category</span>
-                  </div>
-                  <select
-                    className="select select-bordered"
-                    defaultValue={null}
-                  >
-                    <option disabled>Pick one</option>
-                  </select>
-                </label>
-                <label className="form-control w-full mt-4">
-                  <div className="label">
-                    <span className="label-text">Status</span>
-                  </div>
-                  <select
-                    className="select select-bordered"
-                    defaultValue={null}
-                  >
-                    <option disabled>Pick one</option>
-                  </select>
-                </label>
-                <div className="flex justify-between mt-8">
-                  <button className="py-3 px-6 font-semibold border border-gray-200 rounded-full">
-                    Reset
-                  </button>
-                  <div className="flex gap-2">
-                    <button className="py-3 px-6 font-semibold border border-gray-200 rounded-full">
-                      Cancel
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <label className="form-control w-full mt-4">
+                    <div className="label">
+                      <span className="label-text">Category</span>
+                    </div>
+                    <select
+                      className="select select-bordered w-full mt-2 text-[16px]"
+                      {...register("category")}
+                    >
+                      <option value="all">All</option>
+                      <option value="uncategorized">Uncategorized</option>
+                      {tagOptions.map((tag, index) => (
+                        <option key={index} value={tag.value}>
+                          {tag.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="form-control w-full mt-4">
+                    <div className="label">
+                      <span className="label-text">Status</span>
+                    </div>
+                    <select
+                      className="select select-bordered w-full mt-2 text-[16px]"
+                      {...register("status")}
+                    >
+                      <option value="all">All</option>
+                      <option value="publish">Publish</option>
+                      <option value="draft">Draft</option>
+                    </select>
+                  </label>
+                  <div className="flex justify-between mt-8">
+                    <button
+                      type="button"
+                      onClick={() => reset()}
+                      className="py-3 px-6 font-semibold border border-gray-200 rounded-full"
+                    >
+                      Reset
                     </button>
-                    <button className="btn px-6 bg-orange-500 rounded-full">
-                      Filter
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={closeDetails}
+                        className="py-3 px-6 font-semibold border border-gray-200 rounded-full"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn px-6 bg-orange-500 rounded-full text-white"
+                      >
+                        Filter
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </form>
               </ul>
             </details>
 
             <div className="border h-12 mx-4 opacity-40"></div>
+
             <div
               onClick={() => router.push("/stories/create")}
               className="btn btn-primary rounded-full px-8 text-lg"
