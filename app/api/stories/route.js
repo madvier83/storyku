@@ -58,7 +58,6 @@ export async function GET(request) {
 
     let stories;
     if (id) {
-      // Safely create an ObjectId from the string
       stories = await storiesCollection.findOne({ _id: new ObjectId(id) });
 
       if (!stories) {
@@ -148,7 +147,6 @@ export async function DELETE(request) {
     const { db } = await connectToDatabase();
     const storiesCollection = db.collection("stories");
 
-    // Convert the ID string to an ObjectId
     const result = await storiesCollection.deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {

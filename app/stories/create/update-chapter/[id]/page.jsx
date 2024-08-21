@@ -4,7 +4,6 @@ import { IoMdArrowBack } from "react-icons/io";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import QuillEditor from "@/components/QuillEditor";
 
 export default function Page({ params }) {
   const router = useRouter();
@@ -14,7 +13,6 @@ export default function Page({ params }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch chapter data from local storage based on ID
     const fetchChapter = () => {
       const existingChapters =
         JSON.parse(localStorage.getItem("chapters")) || [];
@@ -44,7 +42,6 @@ export default function Page({ params }) {
       lastUpdated: data.lastUpdated,
     };
 
-    // Update chapter logic
     const existingChapters = JSON.parse(localStorage.getItem("chapters")) || [];
     const updatedChapters = existingChapters.map((ch) =>
       ch.id == id ? chapter : ch

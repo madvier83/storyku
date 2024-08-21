@@ -22,14 +22,13 @@ const Drawer = ({ children }) => {
             className="drawer-overlay"
           ></label>
           <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-8">
-            {/* Sidebar content here */}
             <li>
-              <h1 className="font-extrabold mt-6">STORYKU</h1>
+              <h1 className="font-extrabold mt-6 text-[#1E96AB]">STORYKU</h1>
             </li>
             <li className="drawer-list mt-4">
               <Link href={"/"}>Dashboard</Link>
             </li>
-            <li className="drawer-list">
+            <li className="drawer-list bg-teal-300">
               <Link href={"/"}>Story Management</Link>
             </li>
           </ul>
